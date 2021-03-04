@@ -1,10 +1,10 @@
 import sys
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, render
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, DeleteView, CreateView, UpdateView
 
 from apps.blog.models import Post, Preference, Comment
 from apps.blog.forms import NewCommentForm
@@ -48,9 +48,8 @@ class PostListView(LoginRequiredMixin, ListView):
         return Post.objects.filter(author__in=follows).order_by('-date_posted')
 
 
-
 def about(request):
-    return render(request,'blog/about.html',)
+    return render(request, 'blog/about.html', )
 
 
 class UserPostListView(LoginRequiredMixin, ListView):
@@ -102,7 +101,7 @@ class PostDetailView(DetailView):
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         comment_connected = Comment.objects.filter(post_connected=self.get_object()).order_by('-date_posted')
-        data['commenrs'] = comment_connected
+        data['comments'] = comment_connected
         data['form'] = NewCommentForm(instance=self.request.user)
         return data
 
@@ -112,3 +111,101 @@ class PostDetailView(DetailView):
                               post_connected=self.get_object())
         new_comment.save()
         return self.get(self, request, *args, **kwargs)
+
+
+class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Post
+    template_name = 'blog/post_delete.html'
+    context_object_name = 'posts'
+    success_url = '/'
+
+    def test_func(self):
+        return is_users(self.get_object().author, self.request.user)
+
+
+class PostCreateView(LoginRequiredMixin, CreateView):
+    model = Post
+    template_name = 'blog/post_new.html'
+    fields = ['content']
+    success_url = '/'
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data['tag_line'] = 'Add a new post'
+        return data
+
+
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Post
+    fields = ['content']
+    template_name = 'blog/post_new.html'
+    success_url = '/'
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+    def test_func(self):
+        return is_users(self.get_object().author, self.request.user)
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data['tag_line'] = 'Edit a post'
+        return data
+
+
+class FollowsListView(ListView):
+    model = Follow
+    template_name = 'blog/follow.html'
+    context_object_name = 'follows'
+
+    def visible_user(self):
+        return get_object_or_404(User, username=self.kwargs.get('username'))
+
+
+    def get_queryset(self):
+        user = self.visible_user()
+        return Follow.objects.filter(user= user).order_by('-data')
+
+    def get_context_data(self, *, object_list= None, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data['follow']= 'follows'
+        return data
+
+
+class FollowersListView(ListView):
+    model = Follow
+    template_name = 'blog/follow.html'
+    context_object_name = 'follows'
+
+    def visible_user(self):
+        return get_object_or_404(User, username=self.kwargs.get('username'))
+
+    def get_queryset(self):
+        user = self.visible_user()
+        return Follow.objects.filter(follow_user=user).order_by('-date')
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data['follow'] = 'followers'
+        return data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
