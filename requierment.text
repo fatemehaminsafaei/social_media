@@ -3,3 +3,5 @@ pip install django-crispy-forms
 pip install django-autoslug
 
 pip install git+git://github.com/django-crispy-forms/django-crispy-forms.git@master#egg=django-crispy-forms
+
+pip install django-preferences

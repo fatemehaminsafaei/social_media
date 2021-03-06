@@ -1,12 +1,10 @@
 import sys
-
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.db.models import Count
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render,redirect
 from django.views.generic import ListView, DetailView, DeleteView, CreateView, UpdateView
-
-from apps.blog.models import Post, Preference, Comment
+from apps.blog.models import Post, Comment, Preference
 from apps.blog.forms import NewCommentForm
 from apps.users.models import Follow
 
@@ -33,7 +31,7 @@ class PostListView(LoginRequiredMixin, ListView):
                            .annotate(author_count=Count('author')) \
                            .order_by('-author_count')[:6]
         for aux in data_counter:
-            all_users.append(User.objects.filter(pk=aux['author'].first()))
+            all_users.append(User.objects.filter(pk=aux['author']).first())
         data['preference'] = Preference.objects.all()
         data['all_users'] = all_users
         print(all_users, file=sys.stderr)
@@ -166,14 +164,13 @@ class FollowsListView(ListView):
     def visible_user(self):
         return get_object_or_404(User, username=self.kwargs.get('username'))
 
-
     def get_queryset(self):
         user = self.visible_user()
-        return Follow.objects.filter(user= user).order_by('-data')
+        return Follow.objects.filter(user=user).order_by('-data')
 
-    def get_context_data(self, *, object_list= None, **kwargs):
+    def get_context_data(self, *, object_list=None, **kwargs):
         data = super().get_context_data(**kwargs)
-        data['follow']= 'follows'
+        data['follow'] = 'follows'
         return data
 
 
@@ -193,19 +190,3 @@ class FollowersListView(ListView):
         data = super().get_context_data(**kwargs)
         data['follow'] = 'followers'
         return data
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

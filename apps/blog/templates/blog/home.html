@@ -4,7 +4,7 @@
 
     <div class="row">
         <div class="col-12 col-md-3 pr-4 dont-move">
-            <a href="/"><h2><img class="img-fluid" width="60" src="{% static 'blog/logo.png' %}">BlogRoom</h2></a><br>
+            <a href="/"><h6><img class="img-fluid" width="60" src="{% static 'blog/logo.png' %}">Fatemeh's Tweet Room</h6></a><br>
             <div class="profile-section">
                 <h3 class="white-important p-2">
                     Profile
@@ -17,10 +17,10 @@
                                     style="width: 90px; height: 90px;"
                                     src="{{ user_profile.profile.image.url }}">
                             <div>
-                                <h4 style="text-align: left"
+                                <h6 style="text-align: left"
                                     class="white-important">
                                     {{ user_profile.username }}
-                                </h4>
+                                </h6>
                                 <h6 style="text-align: left"
                                     class="email-profile">
                                     {{ user.email }}
@@ -35,14 +35,14 @@
                                     style="width: 90px; height: 90px;"
                                     src="{{ user.profile.image.url }}">
                             <div>
-                                <h4 style="text-align: left"
+                                <h6 style="text-align: left"
                                     class="white-important">
                                     {{ user.username }}
-                                </h4>
-                                <h6 style="text-align: left"
+                                </h6>
+                                <h8 style="text-align: left"
                                     class="email-profile">
                                     {{ user.email }}
-                                </h6>
+                                </h8>
                             </div>
                         </div>
                     {% endif %}
@@ -57,35 +57,35 @@
                         </div>
                         {% if user_profile != None %}
                             <div class="col-6">
-{#                                <h3 class="white-important follow-click">#}
-{#                                    <a href="{% url 'user-followers' user_profile.username %}">#}
-{#                                        {{ user_profile.profile.followers }}#}
-{#                                    </a>#}
-{#                                </h3>#}
+                                <h3 class="white-important follow-click">
+                                    <a href="{% url 'user-followers' user_profile.username %}">
+                                        {{ user_profile.profile.followers }}
+                                    </a>
+                                </h3>
                             </div>
                             <div class="col-6">
-{#                                <a href="{% url 'user-follows' user_profile.username %}">#}
-{#                                    <h3 class="white-important follow-click">#}
-{#                                        {{ user_profile.profile.following }}#}
-{#                                    </h3>#}
-{#                                </a>#}
+                                <a href="{% url 'user-follows' user_profile.username %}">
+                                    <h3 class="white-important follow-click">
+                                        {{ user_profile.profile.following }}
+                                    </h3>
+                                </a>
                             </div>
                         {% else %}
                             <div class="col-6">
-{#                                <a href="{% url 'user-followers' user.username %}">#}
-{#                                    <h3 class="white-important follow-click">#}
-{#                                        {{ user.profile.followers }}#}
-{#                                    </h3>#}
-{#                                </a>#}
+                                <a href="{% url 'user-followers' user.username %}">
+                                    <h3 class="white-important follow-click">
+                                        {{ user.profile.followers }}
+                                    </h3>
+                                </a>
                             </div>
 
-{#                            <a href="{% url 'user-follows' user.username %}">#}
+                            <a href="{% url 'user-follows' user.username %}">
                                 <div class="col-6">
-{#                                    <h3 class="white-important follow-click">#}
-{#                                        {{ user.profile.following }}#}
-{#                                    </h3>#}
-{#                                </div>#}
-{#                            </a>#}
+                                    <h3 class="white-important follow-click">
+                                        {{ user.profile.following }}
+                                    </h3>
+                                </div>
+                            </a>
                         {% endif %}
                     </div>
                 </article>
@@ -93,7 +93,7 @@
                 <div class="d-flex">
                     {% if user_profile is None %}
                         <div style="margin-left: auto; margin-right:auto">
-{#                            <a class="btn btn-sm btn-outline-primary mb-4 mr-3 " href="{% url 'post-create' %}">#}
+                            <a class="btn btn-sm btn-outline-primary mb-4 mr-3 " href="{% url 'post-create' %}">
                                 Tweet
                             </a>
                         </div>
@@ -184,16 +184,16 @@
                                         class="fas fa-thumbs-down"></i></a> {{ post.dislikes }}
 
 
-                                    <form id="likebutton" method="POST" action="{% url 'postpreference' post.id 1 %}">
-                                        {% csrf_token %}
-                                        <input type="hidden">
-                                    </form>
-
-                                    <form id="dislikebutton" method="POST"
-                                          action="{% url 'postpreference' post.id 2 %}">
-                                        {% csrf_token %}
-                                        <input type="hidden">
-                                    </form>
+{#                                    <form id="likebutton" method="POST" action="{% url 'postpreference' post.id 1 %}">#}
+{#                                        {% csrf_token %}#}
+{#                                        <input type="hidden">#}
+{#                                    </form>#}
+{##}
+{#                                    <form id="dislikebutton" method="POST"#}
+{#                                          action="{% url 'postpreference' post.id 2 %}">#}
+{#                                        {% csrf_token %}#}
+{#                                        <input type="hidden">#}
+{#                                    </form>#}
 
 
                                 </small>
@@ -254,6 +254,7 @@
                         <button type="submit" style="border:0; background: transparent;"><i class="fa fa-search"></i>
                         </button>
                         </a>
+                    </div>
             </form>
         </div>
     </div>
@@ -298,7 +299,7 @@
         <a href="">Cookies</a>,
         <a href="">Ads info</a>,
         <a href="">More</a>
-        © 2020 Twitter, Inc.</p>
+        © 2021 Fatemeh's Twitter Prj</p>
 
     </div>
     </div>
