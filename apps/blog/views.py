@@ -1,8 +1,10 @@
 import sys
+
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.db.models import Count
-from django.shortcuts import get_object_or_404, render,redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic import ListView, DetailView, DeleteView, CreateView, UpdateView
 from apps.blog.models import Post, Comment, Preference
 from apps.blog.forms import NewCommentForm
@@ -190,3 +192,99 @@ class FollowersListView(ListView):
         data = super().get_context_data(**kwargs)
         data['follow'] = 'followers'
         return data
+
+
+@login_required
+def postpreference(request, postid, userpreference):
+    if request.method == "POST":
+        eachpost = get_object_or_404(Post, id=postid)
+
+        obj = ''
+
+        valueobj = ''
+
+        try:
+            obj = Preference.objects.get(user=request.user, post=eachpost)
+
+            valueobj = obj.value  # value of userpreference
+
+            valueobj = int(valueobj)
+
+            userpreference = int(userpreference)
+
+            if valueobj != userpreference:
+                obj.delete()
+
+                upref = Preference()
+                upref.user = request.user
+
+                upref.post = eachpost
+
+                upref.value = userpreference
+
+                if userpreference == 1 and valueobj != 1:
+                    eachpost.likes += 1
+                    eachpost.dislikes -= 1
+                elif userpreference == 2 and valueobj != 2:
+                    eachpost.dislikes += 1
+                    eachpost.likes -= 1
+
+                upref.save()
+
+                eachpost.save()
+
+                context = {'eachpost': eachpost,
+                           'postid': postid}
+
+                return redirect('blog-home')
+
+            elif valueobj == userpreference:
+                obj.delete()
+
+                if userpreference == 1:
+                    eachpost.likes -= 1
+                elif userpreference == 2:
+                    eachpost.dislikes -= 1
+
+                eachpost.save()
+
+                context = {'eachpost': eachpost,
+                           'postid': postid}
+
+                return redirect('blog-home')
+
+
+
+
+        except Preference.DoesNotExist:
+            upref = Preference()
+
+            upref.user = request.user
+
+            upref.post = eachpost
+
+            upref.value = userpreference
+
+            userpreference = int(userpreference)
+
+            if userpreference == 1:
+                eachpost.likes += 1
+            elif userpreference == 2:
+                eachpost.dislikes += 1
+
+            upref.save()
+
+            eachpost.save()
+
+            context = {'eachpost': eachpost,
+                       'postid': postid}
+
+            return redirect('blog-home')
+
+
+    else:
+        eachpost = get_object_or_404(Post, id=postid)
+        context = {'eachpost': eachpost,
+                   'postid': postid}
+
+        return redirect('blog-home')
