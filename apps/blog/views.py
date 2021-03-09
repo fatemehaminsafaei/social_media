@@ -2,12 +2,19 @@ import sys
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db.models import Count
+from django.http import JsonResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic import ListView, DetailView, DeleteView, CreateView, UpdateView
+from rest_framework import status, viewsets, permissions
+from rest_framework.decorators import api_view
+from rest_framework.parsers import JSONParser
+from rest_framework.reverse import reverse_lazy
+
 from apps.blog.models import Post, Comment, Preference
 from apps.blog.forms import NewCommentForm
+from apps.blog.serializers import PostSerializer, UserSerializer, GroupSerializer
 from apps.users.models import Follow
 
 
@@ -65,12 +72,14 @@ class UserPostListView(LoginRequiredMixin, ListView):
         visible_user = self.visible_user()
         logged_user = self.request.user
         print(logged_user.username == '', file=sys.stderr)
+
         if logged_user.username == '' or logged_user is None:
             can_follow = False
         else:
             can_follow = (Follow.objects.filter(user=logged_user,
                                                 follow_user=visible_user).count() == 0)
         data = super().get_context_data(**kwargs)
+
         data['user_profile'] = visible_user
         data['can_follow'] = can_follow
         return data
@@ -81,15 +90,17 @@ class UserPostListView(LoginRequiredMixin, ListView):
 
     def post(self, request, *args, **kwargs):
         if request.user.id is not None:
-            follow_between = Follow.objects.filter(user=request.user,
-                                                   follow_user=self.visible_user())
+            follows_between = Follow.objects.filter(user=request.user,
+                                                    follow_user=self.visible_user())
+
             if 'follow' in request.POST:
                 new_relation = Follow(user=request.user, follow_user=self.visible_user())
-                if follow_between.count() == 0:
+                if follows_between.count() == 0:
                     new_relation.save()
             elif 'unfollow' in request.POST:
-                if follow_between.count() > 0:
-                    follow_between.delete()
+                if follows_between.count() > 0:
+                    follows_between.delete()
+
         return self.get(self, request, *args, **kwargs)
 
 
@@ -113,10 +124,42 @@ class PostDetailView(DetailView):
         return self.get(self, request, *args, **kwargs)
 
 
+class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Comment
+    template_name = 'blog/comment_delete.html'
+    context_object_name = 'comment'
+    success_url = '/'
+
+    # def get_success_url(self):
+    #     pk = self.kwargs['pk']
+    #     return reverse_lazy('post-detail', kwargs={'pk': pk})
+    def test_func(self):
+        return is_users(self.get_object().author, self.request.user)
+
+
+
+class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Comment
+    fields = ['content']
+    template_name = 'blog/comment_new.html'
+    success_url = '/'
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+    def test_func(self):
+        return is_users(self.get_object().author, self.request.user)
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data['tag_line'] = 'Edit a comment'
+        return data
+
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Post
     template_name = 'blog/post_delete.html'
-    context_object_name = 'posts'
+    context_object_name = 'post'
     success_url = '/'
 
     def test_func(self):
@@ -288,3 +331,48 @@ def postpreference(request, postid, userpreference):
                    'postid': postid}
 
         return redirect('blog-home')
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    queryset = User.objects.all().order_by('-date_joined')
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class GroupViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows groups to be viewed or edited.
+    """
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+@api_view(['GET', 'POST', 'DELETE'])
+def post_list(request):
+    if request.method == 'GET':
+        posts = Post.objects.all()
+
+        title = request.query_params.get('title', None)
+        if title is not None:
+            posts = posts.filter(title__icontains=title)
+
+        posts_serializer = PostSerializer(posts, many=True)
+        return JsonResponse(posts_serializer.data, safe=False)
+        # 'safe=False' for objects serialization
+
+    elif request.method == 'POST':
+        post_data = JSONParser().parse(request)
+        post_serializer = PostSerializer(data=post_data)
+        if post_serializer.is_valid():
+            post_serializer.save()
+            return JsonResponse(post_serializer.data, status=status.HTTP_201_CREATED)
+        return JsonResponse(post_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        count = Post.objects.all().delete()
+        return JsonResponse({'message': '{} Posts were deleted successfully!'.format(count[0])},
+                            status=status.HTTP_204_NO_CONTENT)
