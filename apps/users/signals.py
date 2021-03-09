@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 from django.dispatch import receiver
-from .models import Profile
+from apps.users.models.users import Profile
 
 
 # signal that gets fired after the user is saved

@@ -8,11 +8,15 @@ class Post(models.Model):
     content = models.TextField(max_length=1000)
     date_posted = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
+    tags = models.CharField(max_length=100, blank=True)
     likes = models.IntegerField(default=0)
     dislikes = models.IntegerField(default=0)
 
     def __str__(self):
         return self.content[:5]
+
+    def get_absolute_url(self):
+        return reverse('post-detail', kwargs={'pk': self.pk})
 
     @property
     def number_of_comments(self):

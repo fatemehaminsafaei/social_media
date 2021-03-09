@@ -1,5 +1,5 @@
 from django.contrib import admin
-from apps.blog.models import Post, Comment, Preference
+from apps.blog.models.blog import Post, Comment, Preference
 
 
 @admin.register(Post)
