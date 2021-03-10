@@ -88,10 +88,10 @@ class UserPostListView(LoginRequiredMixin, ListView):
     def post(self, request, *args, **kwargs):
         if request.user.id is not None:
             follows_between = Follow.objects.filter(user=request.user,
-                                                    follow_user=self.visible_user()[:5])
+                                                    follow_user=self.visible_user())
 
             if 'follow' in request.POST:
-                new_relation = Follow(user=request.user, follow_user=self.visible_user()[5:])
+                new_relation = Follow(user=request.user, follow_user=self.visible_user())
                 if follows_between.count() == 0:
                     new_relation.save()
             elif 'unfollow' in request.POST:
@@ -208,7 +208,7 @@ class FollowsListView(ListView):
 
     def get_queryset(self):
         user = self.visible_user()
-        return Follow.objects.filter(user=user).order_by('-data')
+        return Follow.objects.filter(user=user).order_by('-date')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         data = super().get_context_data(**kwargs)

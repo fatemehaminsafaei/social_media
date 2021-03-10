@@ -1,5 +1,3 @@
-import os
-
 import form as form
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -86,23 +84,6 @@ def profile(request):
     # return redirect(reverse('profile', kwargs={'uform': uform, 'pform': pform}))
 
     return render(request, 'users/profile.html', {'uform': uform, 'pform': pform})
-
-
-class UpdateProfile(View):
-    model = Profile
-    template_name = 'update_profile.html'
-
-    def get(self, request, **kwargs):
-        user = Profile.objects.get(id=request.user.id)
-        form = ProfileUpdateForm(initial=user.__dict__)
-        return render(request, self.template_name, locals())
-
-    def post(self, request, **kwargs):
-        user = Profile.objects.get(id=request.user.id)
-        os.remove(user.propic.path)
-        form.ProfileUpdateForm(request.POST, request.FILES, instance=user)
-        form.save()
-        return redirect('/')
 
 
 # @login_required
