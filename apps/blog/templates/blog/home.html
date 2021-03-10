@@ -8,7 +8,7 @@
             </h6></a><br>
             <div class="profile-section">
                 <h3 class="white-important p-2">
-                    Profile
+                    <a href="{% url 'profile' %}">Profile</a>
                 </h3>
                 <article class="media content-section" style="height: 140px; width: 100%">
                     {% if user_profile != None %}
@@ -43,6 +43,12 @@
                                 <h8 style="text-align: left"
                                     class="email-profile">
                                     {{ user.email }}
+                                </h8>
+                                <br>
+                                <h8 style="text-align: left"
+                                    class="email-profile">
+                                    <a href="{% url 'profile' %}">
+                                    {{ user.profile.bio }}</a>
                                 </h8>
                             </div>
                         </div>
@@ -158,9 +164,9 @@
                                        style="font-size: 14px"
                                        href="{% url 'post-delete' post.id %}">clear</a>
 
-{#                                    <a class="material-icons ml-2"#}
-{#                                       style="font-size: 14px"#}
-{#                                       href="{% url 'comment-delete'  comment.id %}">clear</a>#}
+                                    {#                                    <a class="material-icons ml-2"#}
+                                    {#                                       style="font-size: 14px"#}
+                                    {#                                       href="{% url 'comment-delete'  comment.id %}">clear</a>#}
 
                                     <a class="material-icons ml-2"
                                        style="font-size: 14px"
@@ -258,23 +264,22 @@
             <form action="{% url 'search' %}" method="post">{% csrf_token %}
                 <div class="search-container">
                     <div class="search">
-                        <input required name="search" type="text" id="zip-code-input" placeholder="Search Twitter">
+                        <input required name="search" type="text" id="zip-code-input" placeholder="Search ">
                         <button type="submit" style="border:0; background: transparent;"><i class="fa fa-search"></i>
                         </button>
                         </a>
                     </div>
             </form>
         </div>
-    </div>
-    <h3 class="white-important mb-3 mt-4"> Trends </h3>
-
-    {% if user_profile is None %}
+        <br>
+        <h3 class="white-important mb-3 mt-4"> Trends </h3>
+                    {% if user_profile is None %}
 
         <article class="t-section media content-section">
 
             <div class="row ">
                 <div class="col-12">
-                    <h3>Who to follow</h3>
+                    <h3>follow List</h3>
                 </div>
                 <ul class="col-12 mt-2">
                     {% for user in all_users %}
@@ -293,6 +298,7 @@
                                     </a>
                                 </div>
                                 <p>{{ user.email }}</p>
+                                <p>{{ user.bio }}</p>
                             </div>
                         </li>
                     {% endfor %}
@@ -302,12 +308,52 @@
 
         </article>
     {% endif %}
-    <p><a href="">Terms</a>,
-        <a href="">Privacy policy</a>,
-        <a href="">Cookies</a>,
-        <a href="">Ads info</a>,
-        <a href="">More</a>
-        © 2021 Fatemeh's Twitter Prj</p>
+
+    </div>
+
+
+{#    {% if user_profile is None %}#}
+{##}
+{#        <article class="t-section media content-section">#}
+{##}
+{#            <div class="row ">#}
+{#                <div class="col-12">#}
+{#                    <h3>Who to follow</h3>#}
+{#                </div>#}
+{#                <ul class="col-12 mt-2">#}
+{#                    {% for user in all_users %}#}
+{#                        <li>#}
+{#                            <div class="who-to-follow">#}
+{##}
+{#                                <div#}
+{#                                        style="padding-left: 0px !important;"#}
+{#                                        class="col-8 no-padding d-flex align-items-center">#}
+{#                                    <img#}
+{#                                            class="rounded-circle mr-2"#}
+{#                                            style="width: 20px; height: 20px;"#}
+{#                                            src="{{ user.profile.image.url }}">#}
+{#                                    <a class="mr-2 white-important" href="{% url 'user-posts' user.username %}">#}
+{#                                        {{ user.username }}#}
+{#                                    </a>#}
+{#                                </div>#}
+{#                                <p>{{ user.email }}</p>#}
+{#                            </div>#}
+{#                        </li>#}
+{#                    {% endfor %}#}
+{#                </ul>#}
+{##}
+{#            </div>#}
+{##}
+{#        </article>#}
+{#    {% endif %}#}
+
+{##}
+{#    <p><a href="">Terms</a>,#}
+{#        <a href="">Privacy policy</a>,#}
+{#        <a href="">Cookies</a>,#}
+{#        <a href="">Ads info</a>,#}
+{#        <a href="">More</a>#}
+{#        © 2021 Fatemeh's Twitter Prj</p>#}
 
     </div>
     </div>

@@ -1,5 +1,6 @@
 from rest_framework import routers
 from . import views
+from django.conf.urls.static import static
 from django.urls import path, include
 from apps.blog.views import PostListView, UserPostListView, PostDetailView, PostCreateView, PostUpdateView, \
     FollowsListView, FollowersListView, PostDeleteView, postpreference, post_list, CommentDeleteView, CommentUpdateView

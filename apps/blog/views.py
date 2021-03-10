@@ -19,7 +19,7 @@ def is_users(post_user, logged_user):
     return post_user == logged_user
 
 
-PAGINATION_COUNT = 3
+PAGINATION_COUNT = 5
 
 
 class PostListView(LoginRequiredMixin, ListView):
@@ -88,10 +88,10 @@ class UserPostListView(LoginRequiredMixin, ListView):
     def post(self, request, *args, **kwargs):
         if request.user.id is not None:
             follows_between = Follow.objects.filter(user=request.user,
-                                                    follow_user=self.visible_user())
+                                                    follow_user=self.visible_user()[:5])
 
             if 'follow' in request.POST:
-                new_relation = Follow(user=request.user, follow_user=self.visible_user())
+                new_relation = Follow(user=request.user, follow_user=self.visible_user()[5:])
                 if follows_between.count() == 0:
                     new_relation.save()
             elif 'unfollow' in request.POST:
@@ -212,7 +212,7 @@ class FollowsListView(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         data = super().get_context_data(**kwargs)
-        data['follow'] = 'follows'
+        data['follow'] = 'following'
         return data
 
 
