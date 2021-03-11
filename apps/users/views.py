@@ -1,5 +1,6 @@
 import form as form
-from django.shortcuts import render, redirect
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.views import View
 
@@ -8,7 +9,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 
-from .models.users import Profile
+from .models.users import Profile, FollowRequest
 
 
 def register(request):
@@ -108,3 +109,22 @@ def SearchView(request):
             'results': results
         }
         return render(request, 'users/search_result.html', context)
+
+
+def friend_list(request):
+    p = request.user.profile
+    friends = p.friends.all()
+    context = {
+        'friends': friends
+    }
+    return render(request, "users/friend_list.html", context)
+
+
+
+@login_required
+def send_follow_request(request, id):
+    user = get_object_or_404(User, id=id)
+    frequest, created = FollowRequest.objects.get_or_create(
+        from_user=request.user,
+        to_user=user)
+    return HttpResponseRedirect('/users/{}'.format(user.profile.bio))

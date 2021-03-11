@@ -20,6 +20,7 @@ urlpatterns = [
     path('register/', views.register, name='register-users'),
     path('profile/', views.profile, name='profile'),
     path('search/', views.SearchView, name='search'),
+    path('user/follow-request/send/<int:id>/', views.send_follow_request, name='send_follow_request'),
 ]
 
 if settings.DEBUG:
