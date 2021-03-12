@@ -3,7 +3,8 @@ body {
     height: 100vh;
     margin: 0;
     padding: 0;
-    background-color: #0c5460;
+    /*background-color: #0c5460;*/
+    /*background-color: white;*/
 }
 
 #map{

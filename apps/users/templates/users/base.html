@@ -24,6 +24,8 @@
             <div class="navbar-nav mr-auto pl-2">
               <a class="nav-item nav-link" href="{% url 'blog-home' %}">Home</a>
               <a class="nav-item nav-link" href="{% url 'blog-about' %}">About</a>
+              <a class="nav-item nav-link" href="{% url 'user-profile_view' %}">Add friend</a>
+
             </div>
                         <div class="navbar-nav pr-2">
                 {% if user.is_authenticated %}

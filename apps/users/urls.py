@@ -20,7 +20,14 @@ urlpatterns = [
     path('register/', views.register, name='register-users'),
     path('profile/', views.profile, name='profile'),
     path('search/', views.SearchView, name='search'),
-    path('user/follow-request/send/<int:id>/', views.send_follow_request, name='send_follow_request'),
+
+    path('user/<bio>/', views.profile_view, name='profile_view'),
+    path('friends/', views.friend_list, name='friend_list'),
+    path('user/frined-request/send/<int:id>/', views.send_friend_request, name='send_friend_request'),
+    path('user/friend-request/cancel/<int:id>/', views.cancel_friend_request, name='cancel_friend_request'),
+    path('user/friend-request/accept/<int:id>/', views.accept_friend_request, name='accept_friend_request'),
+    path('user/friend-request/delete/<int:id>/', views.delete_friend_request, name='delete_friend_request'),
+    path('user/friend/delete/<int:id>/', views.delete_friend, name='delete_friend'),
 ]
 
 if settings.DEBUG:

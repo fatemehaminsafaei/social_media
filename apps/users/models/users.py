@@ -51,7 +51,7 @@ def post_save_user_model_receiver(sender, instance, created, *args, **kwargs):
 post_save.connect(post_save_user_model_receiver, sender=settings.AUTH_USER_MODEL)
 
 
-class FollowRequest(models.Model):
+class FriendRequest(models.Model):
     to_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='to_user', on_delete=models.CASCADE)
     from_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='from_user', on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
