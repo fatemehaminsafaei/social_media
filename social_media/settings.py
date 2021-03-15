@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'apps.users',
     'apps.blog',
     'rest_framework',
+    'apps.friends'
 ]
 
 MIDDLEWARE = [
@@ -59,8 +60,8 @@ ROOT_URLCONF = 'social_media.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # 'DIRS': [os.path.join(BASE_DIR, 'templates')]
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        # 'DIRS': [],
 
         'APP_DIRS': True,
         'OPTIONS': {

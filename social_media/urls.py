@@ -23,5 +23,6 @@ urlpatterns = [
     # path('', include('apps.media.urls')),
     path('', include('apps.users.urls')),
     path('', include('apps.blog.urls')),
+    path('', include('apps.friends.urls')),
 
 ]

@@ -1,3 +1,4 @@
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -11,6 +12,10 @@ class Post(models.Model):
     tags = models.CharField(max_length=100, blank=True)
     likes = models.IntegerField(default=0)
     dislikes = models.IntegerField(default=0)
+    image = models.ImageField(upload_to='posts', validators=[FileExtensionValidator(['png', 'jpg', 'jpeg'])],
+                              blank=True)
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     def __str__(self):
         return self.content[:5]

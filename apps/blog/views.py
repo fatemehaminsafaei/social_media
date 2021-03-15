@@ -35,7 +35,7 @@ class PostListView(LoginRequiredMixin, ListView):
         all_users = []
         data_counter = Post.objects.values('author') \
                            .annotate(author_count=Count('author')) \
-                           .order_by('-author_count')[:6]
+                           .order_by('-author_count')[:5]
         for aux in data_counter:
             all_users.append(User.objects.filter(pk=aux['author']).first())
         data['preference'] = Preference.objects.all()

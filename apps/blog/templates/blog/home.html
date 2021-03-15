@@ -1,4 +1,4 @@
-{% extends 'blog/base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 {% block content %}
 
@@ -54,6 +54,8 @@
                         </div>
                     {% endif %}
                 </article>
+
+
                 <article class="media content-section">
                     <div class="row full-width pl-2">
                         <div class="col-6">
@@ -124,6 +126,8 @@
                 </div>
             </div>
         </div>
+
+
         <div class="col-12 col-md-6 scrollable">
             <div class="full-width row">
                 <div class="col-6">
@@ -260,6 +264,8 @@
                 {% endif %}
             </div>
         </div>
+
+
         <div class="col-12 col-md-3 dont-move">
             <form action="{% url 'search' %}" method="post">{% csrf_token %}
                 <div class="search-container">
@@ -272,6 +278,8 @@
             </form>
         </div>
         <br>
+
+
         <h3 class="white-important mb-3 mt-4"> Trends </h3>
                     {% if user_profile is None %}
 

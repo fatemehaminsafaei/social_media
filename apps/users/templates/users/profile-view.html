@@ -1,19 +1,24 @@
-{% extends "users/base.html" %}
+{% extends "base.html" %}
 {% load static %}
-{% block cssfiles %}
-{%endblock cssfiles %}
-{% block searchform %}
-<form
-  class="form-inline my-2 my-lg-0 ml-5"
-  action="{% url 'search_users' %}"
-  method="get"
->
-  <input name="q" type="text" placeholder="Search users.." />
-  <button class="btn btn-success my-2 my-sm-0 ml-4" type="submit">
-    Search
-  </button>
-</form>
-{% endblock searchform %} {% block content %}
+{#{% block cssfiles %}#}
+{#{%endblock cssfiles %}#}
+
+
+{% block content %}
+
+        <div class="col-12 col-md-3 dont-move">
+            <form action="{% url 'search' %}" method="post">{% csrf_token %}
+                <div class="search-container">
+                    <div class="search">
+                        <input required name="search" type="text" id="zip-code-input" placeholder="Search ">
+                        <button type="submit" style="border:0; background: transparent;"><i class="fa fa-search"></i>
+                        </button>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
 
 <div class="main-content">
   <div class="container mt-7">
@@ -200,7 +205,8 @@
   </div>
 </div>
 
-{% endblock content %}
-{% block jsfiles %}
 
-{% endblock jsfiles %}
+{% endblock content %}
+{#{% block jsfiles %}#}
+{##}
+{#{% endblock jsfiles %}#}

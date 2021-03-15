@@ -1,14 +1,12 @@
+import random
 import form as form
+from django.contrib.auth import get_user_model
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
-from django.views import View
-
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-
 from .models.users import Profile, FriendRequest
 from ..blog.models.blog import Post
 
@@ -24,45 +22,6 @@ def register(request):
     else:
         form = UserRegisterForm()
     return render(request, 'users/register.html', {'form': form})
-
-
-#
-# @login_required
-# def profile(request):
-#     if request.method == 'POST':
-#         uform = UserUpdateForm(request.POST, instance=request.user)
-#         pform = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
-#
-#         if uform.is_valid() and pform.is_valid():
-#             uform.save()
-#             pform.save()
-#             messages.success(request, f'Account has been updated.')
-#             return redirect('profile')
-#     else:
-#         uform = UserUpdateForm(instance=request.user)
-#         pform = ProfileUpdateForm(instance=request.user.profile)
-#
-#     return render(request, 'users/profile.html', {'uform': uform, 'pform': pform})
-
-# @login_required
-# def profile(request, *args, **kwargs):
-#     ids = request.user.id
-#     user = User.objects.get(pk=ids)
-#     if request.method == "POST":
-#         if "bio" in request.POST and "user" in request.POST:
-#             bio = request.POST["bio"]
-#             location = request.POST["user"]
-#
-#             user.profile.bio = bio
-#             user.profile.location = location
-#             user.profile.save()
-#
-#     elif "image" in request.FILES:
-#
-#         image = request.FILES['image']
-#         user.profile.Propic.save(image.name, image)
-#
-#     return render(request, 'users/profile.html', {"user": user})
 
 
 @login_required()
@@ -112,6 +71,44 @@ def SearchView(request):
         return render(request, 'users/search_result.html', context)
 
 
+User = get_user_model()
+
+
+@login_required
+def users_list(request):
+    users = Profile.objects.exclude(user=request.user)
+    sent_friend_requests = FriendRequest.objects.filter(from_user=request.user)
+    my_friends = request.user.profile.friends.all()
+    sent_to = []
+    friends = []
+    for user in my_friends:
+        friend = user.friends.all()
+        for f in friend:
+            if f in friends:
+                friend = friend.exclude(user=f.user)
+        friends += friend
+    for i in my_friends:
+        if i in friends:
+            friends.remove(i)
+    if request.user.profile in friends:
+        friends.remove(request.user.profile)
+    random_list = random.sample(list(users), min(len(list(users)), 10))
+    for r in random_list:
+        if r in friends:
+            random_list.remove(r)
+    friends += random_list
+    for i in my_friends:
+        if i in friends:
+            friends.remove(i)
+    for se in sent_friend_requests:
+        sent_to.append(se.to_user)
+    context = {
+        'users': friends,
+        'sent': sent_to
+    }
+    return render(request, "users/users_list.html", context)
+
+
 def friend_list(request):
     p = request.user.profile
     friends = p.friends.all()
@@ -127,7 +124,7 @@ def send_friend_request(request, id):
     frequest, created = FriendRequest.objects.get_or_create(
         from_user=request.user,
         to_user=user)
-    return HttpResponseRedirect('/users/{}'.format(user.profile.bio))
+    return HttpResponseRedirect('/users/{}'.format(user.profile.slug))
 
 
 @login_required
@@ -137,7 +134,7 @@ def cancel_friend_request(request, id):
         from_user=request.user,
         to_user=user).first()
     frequest.delete()
-    return HttpResponseRedirect('/users/{}'.format(user.profile.bio))
+    return HttpResponseRedirect('/users/{}'.format(user.profile.slug))
 
 
 @login_required
@@ -152,7 +149,7 @@ def accept_friend_request(request, id):
         request_rev = FriendRequest.objects.filter(from_user=request.user, to_user=from_user).first()
         request_rev.delete()
     frequest.delete()
-    return HttpResponseRedirect('/users/{}'.format(request.user.profile.bio))
+    return HttpResponseRedirect('/users/{}'.format(request.user.profile.slug))
 
 
 @login_required
@@ -160,7 +157,7 @@ def delete_friend_request(request, id):
     from_user = get_object_or_404(User, id=id)
     frequest = FriendRequest.objects.filter(from_user=from_user, to_user=request.user).first()
     frequest.delete()
-    return HttpResponseRedirect('/users/{}'.format(request.user.profile.bio))
+    return HttpResponseRedirect('/users/{}'.format(request.user.profile.slug))
 
 
 def delete_friend(request, id):
@@ -168,13 +165,11 @@ def delete_friend(request, id):
     friend_profile = get_object_or_404(Profile, id=id)
     user_profile.friends.remove(friend_profile)
     friend_profile.friends.remove(user_profile)
-    return HttpResponseRedirect('/users/{}'.format(friend_profile.bio))
-
-
+    return HttpResponseRedirect('/users/{}'.format(friend_profile.slug))
 
 @login_required
-def profile_view(request, bio):
-    p = Profile.objects.filter(slug=bio).first()
+def profile_view(request, slug):
+    p = Profile.objects.filter(slug=slug).first()
     u = p.user
     sent_friend_requests = FriendRequest.objects.filter(from_user=p.user)
     rec_friend_requests = FriendRequest.objects.filter(to_user=p.user)
@@ -206,4 +201,4 @@ def profile_view(request, bio):
         'post_count': user_posts.count
     }
 
-    return render(request, "users/profile-view.html", context)
+    return render(request, "users/profile.html", context)

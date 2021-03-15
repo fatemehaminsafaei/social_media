@@ -1,3 +1,4 @@
+from autoslug import AutoSlugField
 from django.db import models
 from django.contrib.auth.models import User
 from PIL import Image
@@ -6,11 +7,18 @@ from django.conf import settings
 
 
 class Profile(models.Model):
+    first_name = models.CharField(max_length=200, blank=True)
+    last_name = models.CharField(max_length=200, blank=True)
+    email = models.EmailField(max_length=200, blank=True)
+    country = models.CharField(max_length=200, blank=True)
+    # slug = models.SlugField(unique=True, blank=True)
+    updated = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    # password = models.CharField(max_length=10, verbose_name='password')
     image = models.ImageField(default='default.png', upload_to='profile_pics')
     bio = models.CharField(max_length=255, blank=True)
     friends = models.ManyToManyField("Profile", blank=True)
+    slug = AutoSlugField(populate_from='user', default=None)
 
     def __str__(self):
         return f'{self.user.username} Profile'
@@ -33,6 +41,9 @@ class Profile(models.Model):
             img.thumbnail(output_size)
             img.save(self.image.path)
 
+    def get_absolute_url(self):
+        return "/user/{}".format(self.user)
+
 
 class Follow(models.Model):
     user = models.ForeignKey(User, related_name='user', on_delete=models.CASCADE)
@@ -54,7 +65,19 @@ post_save.connect(post_save_user_model_receiver, sender=settings.AUTH_USER_MODEL
 class FriendRequest(models.Model):
     to_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='to_user', on_delete=models.CASCADE)
     from_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='from_user', on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
         return "From {}, to {}".format(self.from_user.username, self.to_user.username)
+
+
+# class Relationship(models.Model):
+#     sender = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='sender')
+#     receiver = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='receiver')
+#     status = models.CharField(max_length=8, choices=STATUS_CHOICES)
+#     updated = models.DateTimeField(auto_now=True)
+#     created = models.DateTimeField(auto_now_add=True)
+#     objects = RelationshipManager()
+#
+#     def __str__(self):
+#         return '{}-{}-{}'.format(self.sender, self.receiver, self.status)
