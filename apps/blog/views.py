@@ -10,7 +10,7 @@ from rest_framework import status, viewsets, permissions
 from rest_framework.decorators import api_view
 from rest_framework.parsers import JSONParser
 from apps.blog.models.blog import Post, Comment, Preference
-from apps.blog.forms import NewCommentForm
+from apps.blog.forms import NewCommentForm, NewPostForm
 from apps.blog.serializers import PostSerializer, UserSerializer, GroupSerializer
 from apps.users.models.users import Follow
 
@@ -30,7 +30,9 @@ class PostListView(LoginRequiredMixin, ListView):
     paginate_by = PAGINATION_COUNT
 
     def get_context_data(self, **kwargs):
-        data = super().get_context_data(**kwargs)
+        # data = super().get_context_data(**kwargs)
+        data = super(PostListView, self).get_context_data(**kwargs)
+        data['form'] = NewPostForm(instance=self.request.user)
 
         all_users = []
         data_counter = Post.objects.values('author') \
@@ -38,8 +40,10 @@ class PostListView(LoginRequiredMixin, ListView):
                            .order_by('-author_count')[:5]
         for aux in data_counter:
             all_users.append(User.objects.filter(pk=aux['author']).first())
+
         data['preference'] = Preference.objects.all()
         data['all_users'] = all_users
+
         print(all_users, file=sys.stderr)
         return data
 
@@ -75,13 +79,15 @@ class UserPostListView(LoginRequiredMixin, ListView):
         else:
             can_follow = (Follow.objects.filter(user=logged_user,
                                                 follow_user=visible_user).count() == 0)
-        data = super().get_context_data(**kwargs)
-
+        # data = super().get_context_data(**kwargs)
+        data = super(UserPostListView, self).get_context_data(**kwargs)
         data['user_profile'] = visible_user
         data['can_follow'] = can_follow
+        # data['form'] = NewPostForm(instance=self.request.user)
         return data
 
     def get_queryset(self):
+        # user = get_object_or_404(User, username=self.visible_user())
         user = self.visible_user()
         return Post.objects.filter(author=user).order_by('-date_posted')
 
@@ -109,9 +115,12 @@ class PostDetailView(DetailView):
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         comment_connected = Comment.objects.filter(post_connected=self.get_object()).order_by('-date_posted')
+        data['form'] = NewPostForm(instance=self.request.user)
         data['comments'] = comment_connected
         data['form'] = NewCommentForm(instance=self.request.user)
+
         return data
+
 
     def post(self, request, *args, **kwargs):
         new_comment = Comment(content=request.POST.get('content'),
@@ -166,7 +175,7 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
     template_name = 'blog/post_new.html'
-    fields = ['content']
+    fields = ['content', 'image', 'tags']
     success_url = '/'
 
     def form_valid(self, form):
@@ -175,6 +184,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
+        data['form'] = NewPostForm(instance=self.request.user)
         data['tag_line'] = 'Add a new post'
         return data
 

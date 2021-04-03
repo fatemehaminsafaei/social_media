@@ -14,6 +14,7 @@ class Post(models.Model):
     dislikes = models.IntegerField(default=0)
     image = models.ImageField(upload_to='posts', validators=[FileExtensionValidator(['png', 'jpg', 'jpeg'])],
                               blank=True)
+    # pic = models.ImageField(upload_to='path/to/img',unique=True ,blank=True, null=True, default=None)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
@@ -22,6 +23,11 @@ class Post(models.Model):
 
     def get_absolute_url(self):
         return reverse('post-detail', kwargs={'pk': self.pk})
+
+    @property
+    def image_url(self):
+        if self.image and hasattr(self.image, 'url'):
+            return self.image.url
 
     @property
     def number_of_comments(self):
@@ -33,6 +39,16 @@ class Comment(models.Model):
     date_posted = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     post_connected = models.ForeignKey(Post, on_delete=models.CASCADE)
+    # post = models.ForeignKey(Post, related_name='details', on_delete=models.CASCADE)
+    # username = models.ForeignKey(User, related_name='details', on_delete=models.CASCADE)
+    # comment = models.CharField(max_length=255)
+    # comment_date = models.DateTimeField(default=timezone.now)
+
+
+# class Like(models.Model):
+#     user = models.ForeignKey(User, related_name='likes', on_delete=models.CASCADE)
+#     post = models.ForeignKey(Post, related_name='likes', on_delete=models.CASCADE)
+
 
 
 class Preference(models.Model):

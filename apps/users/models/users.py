@@ -1,9 +1,12 @@
 from autoslug import AutoSlugField
+from autoslug.settings import slugify
 from django.db import models
 from django.contrib.auth.models import User
 from PIL import Image
 from django.db.models.signals import post_save
 from django.conf import settings
+
+from apps.blog.models.blog import Post
 
 
 class Profile(models.Model):
@@ -18,10 +21,17 @@ class Profile(models.Model):
     image = models.ImageField(default='default.png', upload_to='profile_pics')
     bio = models.CharField(max_length=255, blank=True)
     friends = models.ManyToManyField("Profile", blank=True)
-    slug = AutoSlugField(populate_from='user', default=None)
+    # slug = AutoSlugField(populate_from='user', default=None)
+    slug = models.SlugField(verbose_name="Slug",allow_unicode=True,unique=True,blank=True, null=True, default=None)
+
 
     def __str__(self):
         return f'{self.user.username} Profile'
+
+    def save(self, *args, **kwargs):
+        if not self.slug: self.slug = slugify(self.title)
+        super(Post, self).save(*args, **kwargs)
+
 
     @property
     def followers(self):

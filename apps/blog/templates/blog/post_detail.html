@@ -7,6 +7,7 @@
         </h3>
         <article class="media content-section">
             <div style="width: 100%; word-break: break-all;" class="hovered-tweet-comment">
+
                 <div class="pb-2 row m-0 " style="width: 100%; margin-right: 0 !important;">
                     <div
                             style="padding-left: 0px !important;"
@@ -15,10 +16,13 @@
                                 class="rounded-circle mr-2"
                                 style="width: 20px; height: 20px;"
                                 src="{{ post.author.profile.image.url }}">
+
                         <a class="mr-2 white-important" href="{% url 'user-posts' post.author %}">
                             {{ post.author }}
                         </a>
                     </div>
+
+
                     <div class="col-4 d-flex flex-row-reverse no-padding align-items-center"
                          style="padding-right: 0 !important;">
                         {% if post.author == user %}
@@ -38,6 +42,15 @@
                     <p>
                         {{ post.content }}
                     </p>
+
+                    <a href="{{ object.image.url }}"><img class="rounded-circle mr-2"
+                                                          style="width: 20px; height: 20px;"
+                                                          src="{{ object.image.url }}" alt=""></a>
+                    {% if post.tags %}
+                        <br>
+                        <p class="mr-2 white-important" style="color: #00FBD7"><b>Tags: <i>{{ post.tags }}</i></b></p>
+                    {% endif %}
+
 
                     <small
                             class="white-important d-flex full-width flex-row-reverse">

@@ -21,7 +21,6 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('search/', views.SearchView, name='search'),
 
-
     ###request stuff
     path('users/', views.users_list, name='users_list'),
     path('users/<slug>/', views.profile_view, name='profile_view'),
